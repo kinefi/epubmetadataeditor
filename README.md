@@ -23,7 +23,7 @@ Herhangi bir indirme, kurulum veya sunucu işlemi gerektirmez. Dosyalarınız hi
 - **EPUB 2 ➔ EPUB 3 Dönüştürücü:**
   - Eski EPUB 2 formatındaki kitapları tek tıkla EPUB 3 standartlarına yükseltme ve gerekli navigasyon dosyalarını (`nav.xhtml`) entegre etme.
 - **Akıllı Dosya Adı Biçimlendirme:**
-  - Düzenlenen dosyaları otomatik olarak `Yazar Adı - Kitap Adı.epub` şablonuyla indirme.
+  - Düzenlenen dosyaları otomatik olarak `Yıl - Kitap Adı (Yazar).epub` şablonuyla (yayın yılı bulunmuyorsa `Kitap Adı (Yazar).epub`) indirme.
 - **Güvenli ve İzolasyonlu İçerik:**
   - Kitabın metinleri, bölümleri ve HTML yapısına **kesinlikle dokunmaz**; sadece meta verileri ve kapak dosyalarını günceller.
 - **%100 İstemci Taraflı (Client-side):**
