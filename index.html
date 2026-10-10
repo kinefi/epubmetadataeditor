@@ -270,11 +270,29 @@
         });
 
         // Dosya Adı Önizleme
-        function updateFileNamePreview() {
-            const author = document.getElementById('authorInput').value.trim() || "Bilinmeyen Yazar";
-            const title = document.getElementById('titleInput').value.trim() || "Bilinmeyen Kitap";
-            document.getElementById('downloadNamePreview').textContent = `İndirilecek Dosya: ${author} - ${title}.epub`;
+function updateFileNamePreview() {
+    const author = document.getElementById('authorInput').value.trim() || "Yazar";
+    const title = document.getElementById('titleInput').value.trim() || "Kitap";
+    const dateVal = document.getElementById('dateInput').value;
+    
+    // Yayın tarihinden yılı çek (YYYY)
+    let yearPrefix = "";
+    if (dateVal) {
+        const parsedYear = new Date(dateVal).getFullYear();
+        if (!isNaN(parsedYear)) {
+            yearPrefix = `${parsedYear} - `;
         }
+    }
+
+    const finalFileName = `${yearPrefix}${title} (${author}).epub`;
+    document.getElementById('downloadNamePreview').textContent = `İndirilecek Dosya: ${finalFileName}`;
+}
+
+// Tarih ve form alanları değiştiğinde önizlemeyi güncelle
+['authorInput', 'titleInput', 'dateInput'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateFileNamePreview);
+    document.getElementById(id).addEventListener('change', updateFileNamePreview);
+});
 
         ['authorInput', 'titleInput'].forEach(id => {
             document.getElementById(id).addEventListener('input', updateFileNamePreview);
