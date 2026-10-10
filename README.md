@@ -1,4 +1,4 @@
-[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-2ea44f?style=for-the-badge&logo=github)](https://kinefi.github.io/epubmetadataeditor)
+[![GitHub Pages](https://img.shields.io/badge/Live_Demo-GitHub_Pages-2ea44f?style=for-the-badge&logo=github)](https://kinefi.github.io/epubmetadataeditor)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](LICENSE)
 
 # 📚 EPUB Metadata Editor
@@ -6,6 +6,8 @@
 Tamamen tarayıcı üzerinde çalışan, sunucusuz ve hafif bir **EPUB Meta Veri ve Kapak Düzenleyicisi**. 
 
 Herhangi bir indirme, kurulum veya sunucu işlemi gerektirmez. Dosyalarınız hiçbir sunucuya yüklenmez; tüm işlemler doğrudan bilgisayarınızdaki tarayıcıda gerçekleşir.
+
+⚡ **Canlı Uygulama:** [https://kinefi.github.io/epubmetadataeditor](https://kinefi.github.io/epubmetadataeditor)
 
 ---
 
@@ -35,18 +37,6 @@ Herhangi bir indirme, kurulum veya sunucu işlemi gerektirmez. Dosyalarınız hi
 - **[Tailwind CSS](https://tailwindcss.com/):** Modern ve esnek arayüz tasarımı için.
 - **[JSZip](https://stuk.github.io/jszip/):** EPUB/ZIP arşivlerini tarayıcıda açmak, okumak ve yeniden paketlemek için.
 - **DOMParser / XMLSerializer:** EPUB `.opf` (XML) dosyalarını ayrıştırmak ve güncellemek için.
-
----
-
-## 🌐 GitHub Pages Üzerinde Yayınlama
-
-Proje tamamen istemci taraflı olduğu için GitHub Pages üzerinde ücretsiz olarak yayınlanabilir:
-
-1. Bu depoyu (repository) GitHub hesabınıza klonlayın veya yükleyin.
-2. Depo ayarlarından **Settings > Pages** sekmesine gidin.
-3. **Build and deployment** bölümünde kaynağı (`Source`) **Deploy from a branch** olarak seçin.
-4. Dal olarak `main` (veya `master`), klasör olarak `/ (root)` seçip **Save** butonuna tıklayın.
-5. Birkaç dakika içinde uygulamanız `https://kullaniciadi.github.io/depo-adi/` adresinde canlıya alınacaktır.
 
 ---
 
