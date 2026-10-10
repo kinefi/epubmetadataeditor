@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelişmiş EPUB Metadata Editor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- JSZip Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body class="bg-slate-100 min-h-screen py-8 px-4 text-slate-800">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-indigo-600 px-8 py-6 text-white">
+            <h1 class="text-2xl font-bold flex items-center gap-2">📚 Gelişmiş EPUB Metadata Editor</h1>
+            <p class="text-indigo-100 text-sm mt-1">EPUB dosyalarınızın metadatasını ve kapağını tarayıcınızda güvenle düzenleyin.</p>
+        </div>
+
+        <div class="p-8">
+            <!-- Dosya Yükleme Alanı -->
+            <div class="mb-8">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">EPUB Dosyası Seçin</label>
+                <input type="file" id="epubFile" accept=".epub" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer border border-slate-300 rounded-xl p-1 bg-slate-50"/>
+            </div>
+
+            <!-- Ana Düzenleyici Alanı (Açılışta Gizli) -->
+            <div id="editorSection" class="hidden space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b pb-8">
+                    <!-- Sol Kolon: Kapak Yönetimi ve Sürüm -->
+                    <div class="flex flex-col items-center space-y-4">
+                        <span class="text-sm font-semibold text-slate-700">Kapak Resmi</span>
+                        <div class="w-48 h-64 border-2 border-dashed border-slate-300 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center relative group">
+                            <img id="coverPreview" src="" alt="Kapak Önizleme" class="hidden w-full h-full object-cover">
+                            <span id="noCoverText" class="text-xs text-slate-400 text-center px-4">Kapak Bulunamadı</span>
+                        </div>
+                        
+                        <label class="w-full text-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-xl cursor-pointer text-sm transition">
+                            📷 Kapağı Değiştir
+                            <input type="file" id="coverInput" accept="image/*" class="hidden">
+                        </label>
+
+                        <!-- EPUB Sürüm Bilgisi ve Dönüştürücü -->
+                        <div class="w-full bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4 text-center">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Mevcut EPUB Sürümü</span>
+                            <div id="versionBadge" class="text-lg font-bold text-indigo-600 my-1">EPUB -</div>
+                            <button id="upgradeVersionBtn" class="hidden w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded-lg shadow transition">
+                                🚀 EPUB 3'e Yükselt
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sağ Kolon: Metadata Form Alanları -->
+                    <div class="md:col-span-2 space-y-4">
+                        <h3 class="text-md font-bold text-slate-900 border-b pb-2">Temel Bilgiler</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Kitap Adı (Title)</label>
+                                <input type="text" id="titleInput" class="w-full rounded-xl border-slate-300 border p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Yazar (Author)</label>
+                                <input type="text" id="authorInput" class="w-full rounded-xl border-slate-300 border p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Yayıncı (Publisher)</label>
+                                <input type="text" id="publisherInput" class="w-full rounded-xl border-slate-300 border p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Dil (Language)</label>
+                                <input type="text" id="languageInput" class="w-full rounded-xl border-slate-300 border p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <h3 class="text-md font-bold text-slate-900 border-b pt-4 pb-2">Ekstra Meta Veriler</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">ISBN / Identifier</label>
+                                <input type="text" id="isbnInput" class="w-full rounded-xl border-slate-300 border p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Yayın Tarihi (Date)</label>
+                                <input type="date" id="dateInput" class="w-full rounded-xl border-slate-300 border p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori / Etiketler (Subject)</label>
+                                <input type="text" id="subjectInput" placeholder="Örn: Roman, Bilim Kurgu" class="w-full rounded-xl border-slate-300 border p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Seri Adı (Series)</label>
+                                <input type="text" id="seriesInput" placeholder="Örn: Vakıf Serisi" class="w-full rounded-xl border-slate-300 border p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Açıklama / Özet (Description)</label>
+                            <textarea id="descriptionInput" rows="3" class="w-full rounded-xl border-slate-300 border p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kaydetme ve İndirme Butonu -->
+                <div>
+                    <button id="saveBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                        💾 Güncellenmiş EPUB Dosyasını İndir
+                    </button>
+                    <p id="downloadNamePreview" class="text-xs text-center text-slate-500 mt-2 font-mono"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let loadedZip = null;
+        let opfPath = "";
+        let opfDoc = null;
+        let coverBlob = null;
+        let currentVersion = "2.0";
+
+        // EPUB Dosyası Yüklendiğinde
+        document.getElementById('epubFile').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                loadedZip = await JSZip.loadAsync(file);
+
+                // 1. META-INF/container.xml okuma
+                const containerFile = loadedZip.file("META-INF/container.xml");
+                if (!containerFile) return alert("Geçersiz EPUB dosyası!");
+                const containerXml = await containerFile.async("text");
+                const parser = new DOMParser();
+                const containerDoc = parser.parseFromString(containerXml, "text/xml");
+                opfPath = containerDoc.querySelector("rootfile").getAttribute("full-path");
+
+                // 2. OPF Ayrıştırma
+                const opfFile = loadedZip.file(opfPath);
+                const opfXml = await opfFile.async("text");
+                opfDoc = parser.parseFromString(opfXml, "text/xml");
+
+                // Sürüm kontrolü
+                const packageEl = opfDoc.querySelector("package");
+                currentVersion = packageEl ? packageEl.getAttribute("version") || "2.0" : "2.0";
+                updateVersionUI();
+
+                // 3. Metadataları Doldurma
+                const getDC = (tag) => {
+                    const el = opfDoc.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", tag)[0] || 
+                               opfDoc.getElementsByTagName("dc:" + tag)[0];
+                    return el ? el.textContent : "";
+                };
+
+                document.getElementById('titleInput').value = getDC("title");
+                document.getElementById('authorInput').value = getDC("creator");
+                document.getElementById('publisherInput').value = getDC("publisher");
+                document.getElementById('languageInput').value = getDC("language");
+                document.getElementById('isbnInput').value = getDC("identifier");
+                document.getElementById('dateInput').value = getDC("date").split("T")[0];
+                document.getElementById('subjectInput').value = getDC("subject");
+                document.getElementById('descriptionInput').value = getDC("description");
+
+                // Calibre Series
+                const seriesMeta = opfDoc.querySelector('meta[name="calibre:series"]');
+                document.getElementById('seriesInput').value = seriesMeta ? seriesMeta.getAttribute('content') : "";
+
+                // 4. Mevcut Kapağı Bulup Yükleme
+                await extractCoverImage();
+
+                updateFileNamePreview();
+                document.getElementById('editorSection').classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                alert("EPUB dosyası okunurken hata oluştu!");
+            }
+        });
+
+        // Mevcut Kapak Resmini Çıkarma
+        async function extractCoverImage() {
+            let coverPath = null;
+            
+            // Meta cover ID kontrolü
+            const coverMeta = opfDoc.querySelector('meta[name="cover"]');
+            if (coverMeta) {
+                const coverId = coverMeta.getAttribute('content');
+                const item = opfDoc.querySelector(`item[id="${coverId}"]`);
+                if (item) coverPath = item.getAttribute('href');
+            }
+
+            if (coverPath) {
+                const opfDir = opfPath.includes("/") ? opfPath.substring(0, opfPath.lastIndexOf("/") + 1) : "";
+                const fullCoverPath = opfDir + coverPath;
+                const imgFile = loadedZip.file(fullCoverPath);
+                
+                if (imgFile) {
+                    const blob = await imgFile.async("blob");
+                    displayCover(blob);
+                }
+            }
+        }
+
+        // Kapağı Arayüzde Gösterme
+        function displayCover(blob) {
+            const preview = document.getElementById('coverPreview');
+            const noCoverText = document.getElementById('noCoverText');
+            preview.src = URL.createObjectURL(blob);
+            preview.classList.remove('hidden');
+            noCoverText.classList.add('hidden');
+        }
+
+        // Yeni Kapak Yükleme
+        document.getElementById('coverInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                coverBlob = file;
+                displayCover(file);
+            }
+        });
+
+        // Sürüm UI Güncelleme
+        function updateVersionUI() {
+            const badge = document.getElementById('versionBadge');
+            const btn = document.getElementById('upgradeVersionBtn');
+            badge.textContent = `EPUB ${currentVersion}`;
+
+            if (currentVersion.startsWith("2")) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+
+        // EPUB 2 -> EPUB 3 Yükseltme
+        document.getElementById('upgradeVersionBtn').addEventListener('click', function() {
+            currentVersion = "3.0";
+            const packageEl = opfDoc.querySelector("package");
+            if (packageEl) packageEl.setAttribute("version", "3.0");
+
+            // EPUB 3 Navigasyon dosyası kontrolü/ekleme
+            let navItem = opfDoc.querySelector('item[properties~="nav"]');
+            if (!navItem) {
+                const manifest = opfDoc.querySelector('manifest');
+                navItem = opfDoc.createElement('item');
+                navItem.setAttribute('id', 'nav_xhtml');
+                navItem.setAttribute('href', 'nav.xhtml');
+                navItem.setAttribute('media-type', 'application/xhtml+xml');
+                navItem.setAttribute('properties', 'nav');
+                manifest.appendChild(navItem);
+
+                // Minimal nav.xhtml içeriği
+                const navContent = `<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head><title>İçindekiler</title></head>
+<body><nav epub:type="toc" id="toc"><h1>İçindekiler</h1><ol><li><a href="#">Başlangıç</a></li></ol></nav></body>
+</html>`;
+                const opfDir = opfPath.includes("/") ? opfPath.substring(0, opfPath.lastIndexOf("/") + 1) : "";
+                loadedZip.file(opfDir + "nav.xhtml", navContent);
+            }
+
+            updateVersionUI();
+            alert("Sürüm EPUB 3.0 olarak güncellendi!");
+        });
+
+        // Dosya Adı Önizleme
+        function updateFileNamePreview() {
+            const author = document.getElementById('authorInput').value.trim() || "Bilinmeyen Yazar";
+            const title = document.getElementById('titleInput').value.trim() || "Bilinmeyen Kitap";
+            document.getElementById('downloadNamePreview').textContent = `İndirilecek Dosya: ${author} - ${title}.epub`;
+        }
+
+        ['authorInput', 'titleInput'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateFileNamePreview);
+        });
+
+        // Güncelleme ve İndirme
+        document.getElementById('saveBtn').addEventListener('click', async function() {
+            if (!loadedZip || !opfDoc) return;
+
+            // DC Meta Veri Güncelleme
+            const setDC = (tag, val) => {
+                if (!val) return;
+                let el = opfDoc.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", tag)[0] || 
+                         opfDoc.getElementsByTagName("dc:" + tag)[0];
+                if (!el) {
+                    const metadata = opfDoc.getElementsByTagName("metadata")[0];
+                    el = opfDoc.createElementNS("http://purl.org/dc/elements/1.1/", "dc:" + tag);
+                    metadata.appendChild(el);
+                }
+                el.textContent = val;
+            };
+
+            setDC("title", document.getElementById('titleInput').value);
+            setDC("creator", document.getElementById('authorInput').value);
+            setDC("publisher", document.getElementById('publisherInput').value);
+            setDC("language", document.getElementById('languageInput').value);
+            setDC("identifier", document.getElementById('isbnInput').value);
+            setDC("date", document.getElementById('dateInput').value);
+            setDC("subject", document.getElementById('subjectInput').value);
+            setDC("description", document.getElementById('descriptionInput').value);
+
+            // Calibre Series Güncelleme
+            const seriesVal = document.getElementById('seriesInput').value;
+            if (seriesVal) {
+                let seriesMeta = opfDoc.querySelector('meta[name="calibre:series"]');
+                if (!seriesMeta) {
+                    seriesMeta = opfDoc.createElement('meta');
+                    seriesMeta.setAttribute('name', 'calibre:series');
+                    opfDoc.querySelector('metadata').appendChild(seriesMeta);
+                }
+                seriesMeta.setAttribute('content', seriesVal);
+            }
+
+            // Kapak Dosyası Yenileme
+            if (coverBlob) {
+                const opfDir = opfPath.includes("/") ? opfPath.substring(0, opfPath.lastIndexOf("/") + 1) : "";
+                const coverFileName = "cover_updated.jpg";
+                const fullCoverPath = opfDir + coverFileName;
+
+                // Görseli ZIP'e yaz
+                loadedZip.file(fullCoverPath, coverBlob);
+
+                // OPF Manifest ve Metadata güncelle
+                let manifest = opfDoc.querySelector('manifest');
+                let coverItem = opfDoc.querySelector('item[id="cover-image"]') || opfDoc.querySelector('item[id="cover"]');
+                
+                if (!coverItem) {
+                    coverItem = opfDoc.createElement('item');
+                    coverItem.setAttribute('id', 'cover-image');
+                    manifest.appendChild(coverItem);
+                }
+                coverItem.setAttribute('href', coverFileName);
+                coverItem.setAttribute('media-type', coverBlob.type || 'image/jpeg');
+
+                let coverMeta = opfDoc.querySelector('meta[name="cover"]');
+                if (!coverMeta) {
+                    coverMeta = opfDoc.createElement('meta');
+                    coverMeta.setAttribute('name', 'cover');
+                    opfDoc.querySelector('metadata').appendChild(coverMeta);
+                }
+                coverMeta.setAttribute('content', coverItem.getAttribute('id'));
+            }
+
+            // OPF Dosyasını Güncelle
+            const serializer = new XMLSerializer();
+            loadedZip.file(opfPath, serializer.serializeToString(opfDoc));
+
+            // Yeni EPUB İndir
+            const blob = await loadedZip.generateAsync({ type: "blob", mimeType: "application/epub+zip" });
+            const author = document.getElementById('authorInput').value.trim() || "Yazar";
+            const title = document.getElementById('titleInput').value.trim() || "Kitap";
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${author} - ${title}.epub`;
+            link.click();
+        });
+    </script>
+</body>
+</html>
