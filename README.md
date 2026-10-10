@@ -1,3 +1,6 @@
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-2ea44f?style=for-the-badge&logo=github)](https://kinefi.github.io/epubmetadataeditor)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](LICENSE)
+
 # 📚 EPUB Metadata Editor
 
 Tamamen tarayıcı üzerinde çalışan, sunucusuz ve hafif bir **EPUB Meta Veri ve Kapak Düzenleyicisi**. 
